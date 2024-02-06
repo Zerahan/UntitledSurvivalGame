@@ -1,0 +1,774 @@
+[
+	{
+		"Name": "Corner",
+		"Mesh": "/Game/Core/Meshes/Architecture/SM_HallwayCorner.SM_HallwayCorner",
+		"Doors": [
+			{
+				"Location":
+				{
+					"X": 200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 0,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			},
+			{
+				"Location":
+				{
+					"X": 0,
+					"Y": -200,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 270,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			}
+		],
+		"Sizes": []
+	},
+	{
+		"Name": "CorderD2",
+		"Mesh": "/Game/Core/Meshes/Architecture/SM_HallwayCorner_Door2.SM_HallwayCorner_Door2",
+		"Doors": [
+			{
+				"Location":
+				{
+					"X": 200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 0,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			},
+			{
+				"Location":
+				{
+					"X": 0,
+					"Y": -200,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 270,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			},
+			{
+				"Location":
+				{
+					"X": 0,
+					"Y": 200,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 90,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			},
+			{
+				"Location":
+				{
+					"X": -200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 180,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			}
+		],
+		"Sizes": []
+	},
+	{
+		"Name": "CorderD1a",
+		"Mesh": "/Game/Core/Meshes/Architecture/SM_HallwayCorner_Door1a.SM_HallwayCorner_Door1a",
+		"Doors": [
+			{
+				"Location":
+				{
+					"X": 200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 0,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			},
+			{
+				"Location":
+				{
+					"X": 0,
+					"Y": -200,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 270,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			},
+			{
+				"Location":
+				{
+					"X": 0,
+					"Y": 200,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 90,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			}
+		],
+		"Sizes": []
+	},
+	{
+		"Name": "CorderD1b",
+		"Mesh": "/Game/Core/Meshes/Architecture/SM_HallwayCorner_Door1b.SM_HallwayCorner_Door1b",
+		"Doors": [
+			{
+				"Location":
+				{
+					"X": 200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 0,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			},
+			{
+				"Location":
+				{
+					"X": 0,
+					"Y": -200,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 270,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			},
+			{
+				"Location":
+				{
+					"X": -200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 180,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			}
+		],
+		"Sizes": []
+	},
+	{
+		"Name": "End",
+		"Mesh": "/Game/Core/Meshes/Architecture/SM_HallwayEnd.SM_HallwayEnd",
+		"Doors": [
+			{
+				"Location":
+				{
+					"X": 200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 0,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			}
+		],
+		"Sizes": []
+	},
+	{
+		"Name": "EndD3",
+		"Mesh": "/Game/Core/Meshes/Architecture/SM_HallwayEnd_Door3.SM_HallwayEnd_Door3",
+		"Doors": [
+			{
+				"Location":
+				{
+					"X": 200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 0,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			},
+			{
+				"Location":
+				{
+					"X": 0,
+					"Y": -200,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 270,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			},
+			{
+				"Location":
+				{
+					"X": 0,
+					"Y": 200,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 90,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			},
+			{
+				"Location":
+				{
+					"X": -200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 180,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			}
+		],
+		"Sizes": []
+	},
+	{
+		"Name": "EndD1a",
+		"Mesh": "/Game/Core/Meshes/Architecture/SM_HallwayEnd_Door1a.SM_HallwayEnd_Door1a",
+		"Doors": [
+			{
+				"Location":
+				{
+					"X": 200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 0,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			},
+			{
+				"Location":
+				{
+					"X": 0,
+					"Y": 200,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 90,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			}
+		],
+		"Sizes": []
+	},
+	{
+		"Name": "EndD1b",
+		"Mesh": "/Game/Core/Meshes/Architecture/SM_HallwayEnd_Door1b.SM_HallwayEnd_Door1b",
+		"Doors": [
+			{
+				"Location":
+				{
+					"X": 200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 0,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			},
+			{
+				"Location":
+				{
+					"X": -200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 180,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			}
+		],
+		"Sizes": []
+	},
+	{
+		"Name": "EndD1c",
+		"Mesh": "/Game/Core/Meshes/Architecture/SM_HallwayEnd_Door1c.SM_HallwayEnd_Door1c",
+		"Doors": [
+			{
+				"Location":
+				{
+					"X": 200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 0,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			},
+			{
+				"Location":
+				{
+					"X": 0,
+					"Y": -200,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 270,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			}
+		],
+		"Sizes": []
+	},
+	{
+		"Name": "EndD2a",
+		"Mesh": "/Game/Core/Meshes/Architecture/SM_HallwayEnd_Door2a.SM_HallwayEnd_Door2a",
+		"Doors": [
+			{
+				"Location":
+				{
+					"X": 200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 0,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			},
+			{
+				"Location":
+				{
+					"X": 0,
+					"Y": 200,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 90,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			},
+			{
+				"Location":
+				{
+					"X": -200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 180,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			}
+		],
+		"Sizes": []
+	},
+	{
+		"Name": "EndD2b",
+		"Mesh": "/Game/Core/Meshes/Architecture/SM_HallwayEnd_Door2b.SM_HallwayEnd_Door2b",
+		"Doors": [
+			{
+				"Location":
+				{
+					"X": 200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 0,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			},
+			{
+				"Location":
+				{
+					"X": 0,
+					"Y": -200,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 270,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			},
+			{
+				"Location":
+				{
+					"X": -200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 180,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			}
+		],
+		"Sizes": []
+	},
+	{
+		"Name": "EndD2c",
+		"Mesh": "/Game/Core/Meshes/Architecture/SM_HallwayEnd_Door2c.SM_HallwayEnd_Door2c",
+		"Doors": [
+			{
+				"Location":
+				{
+					"X": 200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 0,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			},
+			{
+				"Location":
+				{
+					"X": 0,
+					"Y": -200,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 270,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			},
+			{
+				"Location":
+				{
+					"X": 0,
+					"Y": 200,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 90,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			}
+		],
+		"Sizes": []
+	},
+	{
+		"Name": "Straight",
+		"Mesh": "/Game/Core/Meshes/Architecture/SM_HallwayStraight.SM_HallwayStraight",
+		"Doors": [
+			{
+				"Location":
+				{
+					"X": 200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 0,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			},
+			{
+				"Location":
+				{
+					"X": -200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 180,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			}
+		],
+		"Sizes": []
+	},
+	{
+		"Name": "StraightD2",
+		"Mesh": "/Game/Core/Meshes/Architecture/SM_HallwayStraight_Door2.SM_HallwayStraight_Door2",
+		"Doors": [
+			{
+				"Location":
+				{
+					"X": 200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 0,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			},
+			{
+				"Location":
+				{
+					"X": 0,
+					"Y": -200,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 270,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			},
+			{
+				"Location":
+				{
+					"X": 0,
+					"Y": 200,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 90,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			},
+			{
+				"Location":
+				{
+					"X": -200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 180,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			}
+		],
+		"Sizes": []
+	},
+	{
+		"Name": "StraightD1a",
+		"Mesh": "/Game/Core/Meshes/Architecture/SM_HallwayStraight_Door1a.SM_HallwayStraight_Door1a",
+		"Doors": [
+			{
+				"Location":
+				{
+					"X": 200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 0,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			},
+			{
+				"Location":
+				{
+					"X": 0,
+					"Y": 200,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 90,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			},
+			{
+				"Location":
+				{
+					"X": -200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 180,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			}
+		],
+		"Sizes": []
+	},
+	{
+		"Name": "StraightD1b",
+		"Mesh": "/Game/Core/Meshes/Architecture/SM_HallwayStraight_Door1b.SM_HallwayStraight_Door1b",
+		"Doors": [
+			{
+				"Location":
+				{
+					"X": 200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 0,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			},
+			{
+				"Location":
+				{
+					"X": 0,
+					"Y": -200,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 270,
+					"Roll": 0
+				},
+				"DoorSize": 1
+			},
+			{
+				"Location":
+				{
+					"X": -200,
+					"Y": 0,
+					"Z": 0
+				},
+				"Rotation":
+				{
+					"Pitch": 0,
+					"Yaw": 180,
+					"Roll": 0
+				},
+				"DoorSize": 0
+			}
+		],
+		"Sizes": []
+	}
+]
