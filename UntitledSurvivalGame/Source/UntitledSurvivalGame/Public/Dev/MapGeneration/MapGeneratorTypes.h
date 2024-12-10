@@ -96,7 +96,7 @@ struct UNTITLEDSURVIVALGAME_API FTileCoordinate {
 			case 3: return EGridDirection::W;
 			default: return EGridDirection::N;
 		}
-		return EGridDirection::N;
+		//return EGridDirection::N;
 	}
 
 	static EGridDirection GetRotatorAsDirection(FRotator Rot);
@@ -170,6 +170,9 @@ struct UNTITLEDSURVIVALGAME_API FTileShape
 	FTileShape()
 		: IsValidDrawTarget(false)
 	{};
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TSoftObjectPtr<UStaticMesh> MeshRef;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TArray<FVector> ContainedTileLocations;

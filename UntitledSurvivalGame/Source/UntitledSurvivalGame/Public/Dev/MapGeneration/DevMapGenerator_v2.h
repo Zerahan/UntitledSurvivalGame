@@ -14,7 +14,8 @@ struct FConnection {
 	FConnection() :
 		Direction(EGridDirection::NONE),
 		TileRef(nullptr),
-		ConnectionType(EConnectionType::INVALID)
+		ConnectionType(EConnectionType::INVALID),
+		IsOpen(true)
 	{};
 
 	//*
@@ -22,6 +23,13 @@ struct FConnection {
 		Direction		= _Dir;
 		TileRef			= _Tile;
 		ConnectionType	= _Type;
+		IsOpen			= false;
+	}
+	FConnection(EGridDirection _Dir, UMapTile* _Tile, EConnectionType _Type, bool _IsOpen) {
+		Direction = _Dir;
+		TileRef = _Tile;
+		ConnectionType = _Type;
+		IsOpen = _IsOpen;
 	}
 	//*/
 
@@ -33,6 +41,9 @@ struct FConnection {
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	EConnectionType ConnectionType;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool IsOpen;
 
 	bool IsValid() {
 		return Direction != EGridDirection::NONE && ConnectionType != EConnectionType::INVALID && TileRef;
@@ -90,8 +101,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetOriginalCoordinate(FVector Vector);
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	bool CleanConnections(ADevMapGenerator_v2* GeneratorRef);
+	virtual bool CleanConnections_Implementation(ADevMapGenerator_v2* GeneratorRef);
 
 	UFUNCTION(BlueprintCallable)
 	bool AddConnection(EGridDirection Direction, UMapTile* TileRef, EConnectionType ConnectionType = EConnectionType::SMALL, bool OverwriteExistingConnection = false);
@@ -117,6 +129,12 @@ class UNTITLEDSURVIVALGAME_API ADevMapGenerator_v2 : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ADevMapGenerator_v2();
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	int32 DebugShapeIndex;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	int32 DebugDoorAtttachmentIndex;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TArray<UMapTile*> Tiles;
@@ -165,6 +183,10 @@ public:
 	bool FixPathing();
 	virtual bool FixPathing_Implementation();
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void PostBuildCleanup();
+	virtual void PostBuildCleanup_Implementation();
+
 	UFUNCTION(BlueprintCallable)
 	void GetConnectedPaths(TArray<UMapTile*>& OpenList, TArray<UMapTile*>& CloseList);
 
@@ -188,6 +210,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	int32 GetTileAtLocation(FVector Location) const;
+
+	UFUNCTION(BlueprintCallable)
+	TArray<FTransform> GetAllConnectionLocations(TArray<bool>& IsOpen) const;
+
+	UFUNCTION(BlueprintCallable)
+	TArray<FTransform> GetAllShapes(TArray<FTileShape>& Shapes) const;
 
 	void AddBoundaryLocation(FVector Location);
 

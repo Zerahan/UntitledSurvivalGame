@@ -2,6 +2,7 @@
 
 
 #include "Dev/MapGeneration/MapGeneratorTypes.h"
+#include "Engine/StaticMeshSocket.h"
 
 TArray<FVector> FTileShape::GetContainedTileLocations() const
 {
@@ -86,8 +87,9 @@ void FTileShape::AlignToEdge(FTransform MyEdge, FTransform OtherEdge, FTransform
 
 void FTileShape::AlignToEdge(FDoorInfo MyDoor, FDoorInfo OtherDoor, FTransform& AlignmentTransform)
 {
-	AlignmentTransform.SetLocation(OtherDoor.Location.AsVector() + FTileCoordinate::GetDirectionAsRotator(OtherDoor.Direction).RotateVector(MyDoor.Location.AsVector()));
-	AlignmentTransform.SetRotation(FTileCoordinate::GetDirectionAsRotator(OtherDoor.Direction).Quaternion() * FTileCoordinate::GetDirectionAsRotator(MyDoor.Direction).Quaternion());
+	FRotator Rot = (FTileCoordinate::GetDirectionAsRotator(OtherDoor.Direction).Quaternion() * FTileCoordinate::GetDirectionAsRotator(MyDoor.Direction).Quaternion().Inverse()).Rotator();
+	AlignmentTransform.SetLocation(OtherDoor.Location.AsVector() - Rot.RotateVector(MyDoor.Location.AsVector()));
+	AlignmentTransform.SetRotation(Rot.Quaternion());
 }
 
 void FTileShape::DrawShape(UWorld* World, FTransform WorldPosition, float TileScale)
@@ -111,6 +113,12 @@ void FTileShape::DrawShape(UWorld* World, FTransform WorldPosition, float TileSc
 		if (ContainedTiles[i].IsExternalEdge[1]) DrawDebugLine(World, Loc + Rot.RotateVector(Points[1]), Loc + Rot.RotateVector(Points[2]), FColor::Blue); //(ContainedTiles[i].IsDoorEdge[1] ? FColor::Green : FColor::Blue));
 		if (ContainedTiles[i].IsExternalEdge[2]) DrawDebugLine(World, Loc + Rot.RotateVector(Points[2]), Loc + Rot.RotateVector(Points[3]), FColor::Blue); //(ContainedTiles[i].IsDoorEdge[2] ? FColor::Green : FColor::Blue));
 		if (ContainedTiles[i].IsExternalEdge[3]) DrawDebugLine(World, Loc + Rot.RotateVector(Points[3]), Loc + Rot.RotateVector(Points[0]), FColor::Blue); //(ContainedTiles[i].IsDoorEdge[3] ? FColor::Green : FColor::Blue));
+	}
+
+	if (MeshRef->IsValidLowLevel()) {
+		for(UStaticMeshSocket* Socket : MeshRef->Sockets){
+			DrawDebugSphere(World, Origin + Rot.RotateVector(Socket->RelativeLocation), 16, 8, FColor::Red);
+		}
 	}
 
 	/*/
@@ -160,30 +168,30 @@ inline EGridDirection FTileCoordinate::GetInverseDirection(EGridDirection Direct
 
 inline FVector FTileCoordinate::GetDirectionAsVector(EGridDirection Direction, bool Normalize) {
 	switch (Direction) {
-	case EGridDirection::N: return FVector::ForwardVector;
-	case EGridDirection::E: return FVector::RightVector;
-	case EGridDirection::S: return FVector::ForwardVector * -1;
-	case EGridDirection::W: return FVector::RightVector * -1;
+		case EGridDirection::N: return FVector::ForwardVector;
+		case EGridDirection::E: return FVector::RightVector;
+		case EGridDirection::S: return FVector::ForwardVector * -1;
+		case EGridDirection::W: return FVector::RightVector * -1;
 
-	case EGridDirection::U:  return FVector::UpVector;
-	case EGridDirection::D:  return FVector::UpVector * -1;
+		case EGridDirection::U:  return FVector::UpVector;
+		case EGridDirection::D:  return FVector::UpVector * -1;
 	}
 	if (Normalize) {
 		switch (Direction) {
-		case EGridDirection::NE: return (FVector::ForwardVector + FVector::RightVector).GetUnsafeNormal();
-		case EGridDirection::SE: return ((FVector::ForwardVector * -1) + FVector::RightVector).GetUnsafeNormal();
-		case EGridDirection::SW: return ((FVector::ForwardVector * -1) + (FVector::RightVector * -1)).GetUnsafeNormal();
-		case EGridDirection::NW: return ((FVector::ForwardVector)+(FVector::RightVector * -1)).GetUnsafeNormal();
-		default:				 return FVector::ZeroVector;
+			case EGridDirection::NE: return (FVector::ForwardVector + FVector::RightVector).GetUnsafeNormal();
+			case EGridDirection::SE: return ((FVector::ForwardVector * -1) + FVector::RightVector).GetUnsafeNormal();
+			case EGridDirection::SW: return ((FVector::ForwardVector * -1) + (FVector::RightVector * -1)).GetUnsafeNormal();
+			case EGridDirection::NW: return ((FVector::ForwardVector)+(FVector::RightVector * -1)).GetUnsafeNormal();
+			default:				 return FVector::ZeroVector;
 		}
 	}
 	else {
 		switch (Direction) {
-		case EGridDirection::NE: return FVector::ForwardVector + FVector::RightVector;
-		case EGridDirection::SE: return (FVector::ForwardVector * -1) + FVector::RightVector;
-		case EGridDirection::SW: return (FVector::ForwardVector * -1) + (FVector::RightVector * -1);
-		case EGridDirection::NW: return (FVector::ForwardVector)+(FVector::RightVector * -1);
-		default:				 return FVector::ZeroVector;
+			case EGridDirection::NE: return FVector::ForwardVector + FVector::RightVector;
+			case EGridDirection::SE: return (FVector::ForwardVector * -1) + FVector::RightVector;
+			case EGridDirection::SW: return (FVector::ForwardVector * -1) + (FVector::RightVector * -1);
+			case EGridDirection::NW: return (FVector::ForwardVector)+(FVector::RightVector * -1);
+			default:				 return FVector::ZeroVector;
 		}
 	}
 }
@@ -237,7 +245,7 @@ inline EGridDirection FTileCoordinate::GetRotatorAsDirection(FRotator Rot) {
 				default:	return EGridDirection::NONE;
 			}
 	}
-	return EGridDirection::NONE;
+	//return EGridDirection::NONE;
 }
 
 inline FDoorInfo FDoorInfo::GetInverse() const {

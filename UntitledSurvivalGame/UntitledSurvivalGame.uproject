@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "5.3",
+	"EngineAssociation": "5.4",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -9,17 +9,19 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"Engine"
+				"Engine",
+				"CoreUObject",
+				"UMG"
 			]
 		},
 		{
-			"Name": "InventorySystem",
+			"Name": "InteractionSystem",
 			"Type": "Runtime",
-			"LoadingPhase": "PostDefault",
+			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"UntitledSurvivalGame",
 				"Engine",
-				"CoreUObject"
+				"CoreUObject",
+				"UMG"
 			]
 		},
 		{

@@ -13,6 +13,9 @@ ADevMapGenerator_v2::ADevMapGenerator_v2()
 	BoundaryDoors.Add(FDoorInfo(FVector(0,0,0), EGridDirection::N, EConnectionType::MEDIUM));
 	TileSize = 250;
 	WallThickness = 8;
+
+	DebugShapeIndex = -1;
+	DebugDoorAtttachmentIndex = -1;
 	
 	Tiles.Empty();
 
@@ -117,31 +120,33 @@ void ADevMapGenerator_v2::BeginPlay()
 void ADevMapGenerator_v2::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	//*
 	for (int i = 0; i < Tiles.Num(); i++) {
 		//if(!IsValid(Tiles[i])) continue;
 		DrawTile(Tiles[i]);
 	}
 
 	for (const FDoorInfo Info : BoundaryDoors) {
-		Info.Draw(GetWorld(), TileSize * 2, GetActorLocation(), GetActorRotation(), FColor::Red, 40);
+		//Info.Draw(GetWorld(), TileSize * 2, GetActorLocation(), GetActorRotation(), FColor::Red, 40);
 	}
 	
 	for (const FDoorInfo Info : FinishedDoors) {
-		Info.Draw(GetWorld(), TileSize * 2, GetActorLocation(), GetActorRotation(), FColor::Green, 40);
+		//Info.Draw(GetWorld(), TileSize * 2, GetActorLocation(), GetActorRotation(), FColor::Green, 40);
 	}
+	//*/
 }
 
 bool ADevMapGenerator_v2::GenerateTileIterator_Implementation()
 {
 	if(BoundaryDoors.Num() == 0) return false;
 	int32 index = FMath::RandRange(0, BoundaryDoors.Num() - 1);
-	//if(!BoundaryDoors.IsValidIndex(index)) return false;
+	if(!BoundaryDoors.IsValidIndex(index)) return false;
 	FVector Loc = BoundaryDoors[index].Location.AsVector();
 	FRotator Rot = FTileCoordinate::GetDirectionAsRotator(BoundaryDoors[index].Direction);
 	FVector ModifiedLocation = Loc;
 	FRotator ModifiedRotation = Rot;
-	int32 TileShapeIndex = 1;//FMath::RandRange(0, TileShapes.Num()-1);
+	int32 TileShapeIndex = FMath::RandRange(0, TileShapes.Num()-1);
+	if (TileShapes.IsValidIndex(DebugShapeIndex)) TileShapeIndex = DebugShapeIndex;
 	if (!TileShapes.IsValidIndex(TileShapeIndex)) {
 		GEngine->AddOnScreenDebugMessage(0, 10, FColor::Red, "Got bad TileShapes index");
 	}
@@ -153,9 +158,17 @@ bool ADevMapGenerator_v2::GenerateTileIterator_Implementation()
 
 bool ADevMapGenerator_v2::CleanTiles_Implementation()
 {
+	//GEngine->AddOnScreenDebugMessage(-1, 10, FColor::White, FString::Printf(TEXT("NumTiles: %i"), int32(Tiles.Num())));
 	if(Tiles.Num() == 0) return false;
-	for (UMapTile* Tile : Tiles) {
-		Tile->CleanConnections(this);
+	for (int32 i = 0; i < Tiles.Num(); i++) {
+		for(int32 k = 0; k < Tiles[i]->Doors.Num(); k++){
+			Tiles[i]->AddConnectionInternal(Tiles[i]->Doors[k], Tiles[i], EConnectionType::MEDIUM, true);
+		}
+	}
+	for (int32 i = 0; i < Tiles.Num(); i++) {
+		//if(!Tiles.IsValidIndex(i)) continue;
+		//if(!IsValid(Tiles[i])) continue;
+		Tiles[i]->CleanConnections(this);
 	}
 	return true;
 }
@@ -195,6 +208,21 @@ bool ADevMapGenerator_v2::FixPathing_Implementation()
 	return true;
 }
 
+void ADevMapGenerator_v2::PostBuildCleanup_Implementation()
+{
+	Tiles.Empty();
+
+	BoundaryLocations.Empty();
+	
+	BoundaryDoors.Empty();
+
+	FinishedLocations.Empty();
+
+	FinishedDoors.Empty();
+
+	TileShapes.Empty();
+}
+
 void ADevMapGenerator_v2::GetConnectedPaths(TArray<UMapTile*>& OpenList, TArray<UMapTile*>& CloseList)
 {
 	UMapTile* TileRef;
@@ -224,27 +252,26 @@ bool ADevMapGenerator_v2::CanMakeTileAt(FVector Location, FVector Offset, FRotat
 
 UMapTile* ADevMapGenerator_v2::MakeTile(FVector Location, FRotator Rotation)
 {
-	//*
 	FVector FlattenedLocation = FVector(FMath::RoundToInt(Location.X), FMath::RoundToInt(Location.Y), FMath::RoundToInt(Location.Z));
 	if(!CanMakeTileAt(FlattenedLocation)) return nullptr;
 	UMapTile* NewTile = NewObject<UMapTile>(this, UMapTile::StaticClass());
 	NewTile->Location = FlattenedLocation;
 	Tiles.Add(NewTile);
 	return NewTile;
-	//*/
-	//return nullptr;
 }
 
 bool ADevMapGenerator_v2::CanMakeTileShapeAt(FVector& Location, FRotator& Rotation, FDoorInfo& AlignmentDoor, int32& TileShapeIndex) const
 {
 	bool CanPlaceShape = true;
+	if(!TileShapes.IsValidIndex(TileShapeIndex)) return false;
 	FTileShape Shape = TileShapes[TileShapeIndex];
 	FTransform AlignmentTransform;
 	AlignmentTransform.SetLocation(Location);
 	AlignmentTransform.SetRotation(Rotation.Quaternion());
-	FDoorInfo Door = AlignmentDoor.GetInverse();
-	//for (int32 i = 0; i < Shape.DoorInfo.Num(); i++) {
-	int32 i = 0;
+	FDoorInfo Door = AlignmentDoor;//.GetInverse();
+	for (int32 i = 0; i < Shape.DoorInfo.Num(); i++) {
+		//int32 i = 0;
+		//if(Shape.DoorInfo.IsValidIndex(DebugDoorAtttachmentIndex)) i = DebugDoorAtttachmentIndex;
 		CanPlaceShape = true;
 		Shape.AlignToEdge(Shape.DoorInfo[i], Door, AlignmentTransform);
 		for (int32 k = 0; k < TileShapes[TileShapeIndex].ContainedTileLocations.Num(); k++) {
@@ -253,8 +280,8 @@ bool ADevMapGenerator_v2::CanMakeTileShapeAt(FVector& Location, FRotator& Rotati
 				break;
 			}
 		}
-		//if(CanPlaceShape) break;
-	//}
+		if(CanPlaceShape) break;
+	}
 	if (CanPlaceShape) {
 		Location = AlignmentTransform.GetLocation();
 		Rotation = AlignmentTransform.GetRotation().Rotator();// + FRotator(0,0,0);
@@ -284,46 +311,45 @@ bool ADevMapGenerator_v2::MakeTileShape(int32 BoundaryIndex, int32 TileShapeInde
 	NeighborTiles.Add(FVector::RightVector);
 	NeighborTiles.Add(FVector::ForwardVector * -1);
 	NeighborTiles.Add(FVector::RightVector * -1);
+
+	FTileShape ShapeCopy = FTileShape(TileShapes[TileShapeIndex]);
 	
 	for (int32 i = 0; i < TileShapes[TileShapeIndex].ContainedTiles.Num(); i++) {
-		//FVector NewTileLocation = Loc + Rot.RotateVector(TileShapes[TileShapeIndex].ContainedTiles[i].Location.AsVector());
-		//FVector DefaultTileLocation = TileShapes[TileShapeIndex].ContainedTiles[i].Location.AsVector();
 		UMapTile* Tile = MakeTile(Loc + Rot.RotateVector(TileShapes[TileShapeIndex].ContainedTiles[i].Location.AsVector()));
-		/*
-		if (!IsValid(Tile))
-		{
-			GEngine->AddOnScreenDebugMessage(0, 10, FColor::Red, FString::Printf(TEXT("Failed to create tile at: %s (%i,%i) | (%i,%i)"), (CanMakeTileAt(NewTileLocation) ? TEXT("True") : TEXT("False")), (int)NewTileLocation.X, (int)NewTileLocation.Y, (int)DefaultTileLocation.X, (int)DefaultTileLocation.Y));
-			continue;
-		}
-		//*/
-		//Tile->SetOriginalCoordinate(TileShapes[TileShapeIndex].ContainedTiles[i].Location.AsVector());
-		for (int32 k = 0; k < NeighborTiles.Num(); k++) {
-			//Tile->IsSharedShape.Add(TileShapes[TileShapeIndex].ContainedTileLocations.Contains(TileShapes[TileShapeIndex].ContainedTiles[i].Location.AsVector() + NeighborTiles[k]));
-		}
+
+		Tile->OriginalCoordinate = FVector2D(TileShapes[TileShapeIndex].ContainedTiles[i].Location.X, TileShapes[TileShapeIndex].ContainedTiles[i].Location.Y);
+
 		if (i == 0) {
-			FTileShape ShapeCopy = FTileShape(TileShapes[TileShapeIndex]);
 			ShapeCopy.IsValidDrawTarget = true;
 			Tile->LinkedShape = ShapeCopy;
 			Tile->LinkedShape.ShapeRotation = Rotation;
-			Tile->OriginalDoor = 0;
 		}
-		for (int32 k = 0; k < TileShapes[TileShapeIndex].ContainedTiles[i].IsExternalEdge.Num(); k++) {
-			//if (!TileShapes[TileShapeIndex].ContainedTiles[i].IsExternalEdge[k]) Tile->AddConnectionInternal(Neighbors[k], nullptr, EConnectionType::FULL);
-			if (TileShapes[TileShapeIndex].ContainedTiles[i].IsDoorEdge[k])
-			{
-				//Tile->AddConnectionInternal(Neighbors[k], nullptr, EConnectionType::MEDIUM);
-				//AddBoundaryLocation(Tile->Location + NeighborTiles[k]);
+
+		Tile->OriginalDoor = -1;
+		if (ShapeCopy.DoorInfo.IsValidIndex(DebugDoorAtttachmentIndex)) {
+			if (TileShapes[TileShapeIndex].ContainedTiles[i].Location.Equals(ShapeCopy.DoorInfo[DebugDoorAtttachmentIndex].Location)) {
+				Tile->OriginalDoor = -3;
+			}
+			else {
+				Tile->OriginalDoor = -2;
 			}
 		}
+
 		for (int32 k = 0; k < TileShapes[TileShapeIndex].ContainedTiles[i].ContainedDoors.Num(); k++) {
-			FDoorInfo Info = FDoorInfo(TileShapes[TileShapeIndex].ContainedTiles[i].ContainedDoors[k]);
-			//Info.Location = Loc + Info.Location.AsVector();
-			Info.Location = FTileCoordinate(Loc + Rot.RotateVector(TileShapes[TileShapeIndex].ContainedTiles[i].Location.AsVector()));
-			Tile->Doors.AddUnique(FTileCoordinate::RotateDirectionByRotator(Info.Direction, Rot));
+			FDoorInfo Info	= FDoorInfo();
+			Info.Location	= FTileCoordinate(Tile->Location);
+			Info.Direction	= FTileCoordinate::RotateDirectionByRotator(TileShapes[TileShapeIndex].ContainedTiles[i].ContainedDoors[k].Direction, Rot);
+			Info.Type		= TileShapes[TileShapeIndex].ContainedTiles[i].ContainedDoors[k].Type;
+			Tile->Doors.AddUnique(Info.Direction);
+			if (Tile->OriginalDoor == -3) {
+				if (ShapeCopy.DoorInfo[DebugDoorAtttachmentIndex] == TileShapes[TileShapeIndex].ContainedTiles[i].ContainedDoors[k]) {
+					Tile->OriginalDoor = int32(k);
+				}
+			}
 			FinishedDoors.AddUnique(Info);
 			if (FinishedDoors.Contains(Info.GetInverse())) continue;
 			if (TileExistsAtLocation(Info.GetInverse().Location.AsVector())) continue;
-			//BoundaryDoors.AddUnique(Info.GetInverse());
+			BoundaryDoors.AddUnique(Info.GetInverse());
 		}
 	}
 	return true;
@@ -346,6 +372,43 @@ int32 ADevMapGenerator_v2::GetTileAtLocation(FVector Location) const
 	return index;
 }
 
+TArray<FTransform> ADevMapGenerator_v2::GetAllConnectionLocations(TArray<bool>& IsOpen) const
+{
+	TArray<FTileCoordinate> Doors;
+	TArray<FRotator> Rot;
+	for (int32 i = 0; i < Tiles.Num(); i++) {
+		for (int32 k = 0; k < Tiles[i]->Connect.Num(); k++) {
+			FTileCoordinate T = FTileCoordinate((Tiles[i]->Location * TileSize * 2) + FTileCoordinate::GetDirectionAsVector(Tiles[i]->Connect[k].Direction) * TileSize);
+			if (!Doors.Contains(T)) {
+				Rot.Add(FTileCoordinate::GetDirectionAsRotator(FTileCoordinate::GetInverseDirection(Tiles[i]->Connect[k].Direction)));
+				Doors.Add(T);
+				IsOpen.Add(Tiles[i]->Connect[k].IsOpen);
+			}
+		}
+	}
+	TArray<FTransform> Locations;
+	FTransform T;
+	T.SetScale3D(FVector::OneVector);
+	for (int32 i = 0; i < Doors.Num(); i++) {
+		T.SetLocation(Doors[i].AsVector());
+		T.SetRotation(Rot[i].Quaternion());
+		Locations.Add(T);
+	}
+	return Locations;
+}
+
+TArray<FTransform> ADevMapGenerator_v2::GetAllShapes(TArray<FTileShape>& Shapes) const
+{
+	TArray<FTransform> Locations;
+	for (int32 i = 0; i < Tiles.Num(); i++) {
+		if (Tiles[i]->LinkedShape.IsValidDrawTarget) {
+			Locations.Add(FTransform(Tiles[i]->LinkedShape.ShapeRotation, Tiles[i]->Location * TileSize * 2, FVector::OneVector));
+			Shapes.Add(Tiles[i]->LinkedShape);
+		}
+	}
+	return Locations;
+}
+
 void ADevMapGenerator_v2::AddBoundaryLocation(FVector Location)
 {
 	if(FinishedLocations.Contains(Location)) return;
@@ -358,24 +421,27 @@ void ADevMapGenerator_v2::DrawTile(UMapTile* Tile, FColor Color)
 	FQuat Rot = GetActorRotation().Quaternion();
 	bool DrawDoors = true;
 	int32 AdjustedTileSize = TileSize - (WallThickness * 0.5);
-	DrawDebugLine(GetWorld(), Loc + GetActorRotation().RotateVector(FVector(0 - AdjustedTileSize, 0 - AdjustedTileSize, 0)), Loc + GetActorRotation().RotateVector(FVector(AdjustedTileSize, 0 - AdjustedTileSize, 0)), FColor::Cyan);
-	DrawDebugLine(GetWorld(), Loc + GetActorRotation().RotateVector(FVector(AdjustedTileSize, 0 - AdjustedTileSize, 0)), Loc + GetActorRotation().RotateVector(FVector(AdjustedTileSize, AdjustedTileSize, 0)), FColor::Cyan);
-	DrawDebugLine(GetWorld(), Loc + GetActorRotation().RotateVector(FVector(AdjustedTileSize, AdjustedTileSize, 0)), Loc + GetActorRotation().RotateVector(FVector(0 - AdjustedTileSize, AdjustedTileSize, 0)), FColor::Cyan);
-	DrawDebugLine(GetWorld(), Loc + GetActorRotation().RotateVector(FVector(0 - AdjustedTileSize, AdjustedTileSize, 0)), Loc + GetActorRotation().RotateVector(FVector(0 - AdjustedTileSize, 0 - AdjustedTileSize, 0)), FColor::Cyan);
-	FString str = FString::Printf(TEXT("x: %i, y: %i\nx: %i, y: %i"), (int)Tile->Location.X, (int)Tile->Location.Y, (int)Tile->OriginalCoordinate.X, (int)Tile->OriginalCoordinate.Y);
-	DrawDebugString(GetWorld(), Loc, str);
+	//DrawDebugLine(GetWorld(), Loc + GetActorRotation().RotateVector(FVector(0 - AdjustedTileSize, 0 - AdjustedTileSize, 0)), Loc + GetActorRotation().RotateVector(FVector(AdjustedTileSize, 0 - AdjustedTileSize, 0)), FColor::Cyan);
+	//DrawDebugLine(GetWorld(), Loc + GetActorRotation().RotateVector(FVector(AdjustedTileSize, 0 - AdjustedTileSize, 0)), Loc + GetActorRotation().RotateVector(FVector(AdjustedTileSize, AdjustedTileSize, 0)), FColor::Cyan);
+	//DrawDebugLine(GetWorld(), Loc + GetActorRotation().RotateVector(FVector(AdjustedTileSize, AdjustedTileSize, 0)), Loc + GetActorRotation().RotateVector(FVector(0 - AdjustedTileSize, AdjustedTileSize, 0)), FColor::Cyan);
+	//DrawDebugLine(GetWorld(), Loc + GetActorRotation().RotateVector(FVector(0 - AdjustedTileSize, AdjustedTileSize, 0)), Loc + GetActorRotation().RotateVector(FVector(0 - AdjustedTileSize, 0 - AdjustedTileSize, 0)), FColor::Cyan);
 
+	int32 Rotation = -1;
 	if (Tile->LinkedShape.IsValidDrawTarget) {
 		DrawNormal(Loc + GetActorRotation().RotateVector(FVector::UpVector * 10), Rot.Rotator());
 		FTransform ShapeTransform;
 		ShapeTransform.SetLocation(Loc);
 		ShapeTransform.SetRotation(Rot);
 		Tile->LinkedShape.DrawShape(GetWorld(), ShapeTransform, TileSize * 2);
+		Rotation = Tile->LinkedShape.ShapeRotation.Yaw;
 	}
 
+	FString str = FString::Printf(TEXT("Rotation: %i\nActual x: %i, y: %i\nLoaded x: %i, y: %i\nOriginal: %i"), Rotation, (int)Tile->Location.X, (int)Tile->Location.Y, (int)Tile->OriginalCoordinate.X, (int)Tile->OriginalCoordinate.Y, (int)Tile->OriginalDoor);
+	//DrawDebugString(GetWorld(), Loc, str);
+
 	if (DrawDoors) {
-		for (int32 i = 0; i < Tile->Doors.Num(); i++) {
-			DrawConnection(FConnection(Tile->Doors[i], Tile, EConnectionType::MEDIUM), Tile, (i == Tile->OriginalDoor ? FColor::Green : FColor::White));
+		for (int32 i = 0; i < Tile->Connect.Num(); i++) {
+			DrawConnection(Tile->Connect[i], Tile, FColor::White); //FConnection(Tile->Doors[i], Tile, EConnectionType::MEDIUM)
 		}
 	}
 }
@@ -429,12 +495,13 @@ void ADevMapGenerator_v2::DrawConnection(FConnection Connection, UMapTile* Paren
 	}
 	//DrawDebugLine(GetWorld(), Loc, GetActorLocation() + ParentTile->GetWorldLocation(TileSize), FColor::Red);
 	//if(IsValid(Connection.TileRef)) DrawDebugLine(GetWorld(), Loc, GetActorLocation() + Connection.TileRef->GetWorldLocation(TileSize) + FVector::UpVector * 10, FColor::Green);
-	DrawDebugLine(GetWorld(), Loc + Rot.Rotator().RotateVector(Points[0]), Loc + Rot.Rotator().RotateVector(Points[1]), Color, false, -1, 0, 2);
-	DrawDebugLine(GetWorld(), Loc + Rot.Rotator().RotateVector(Points[2]), Loc + Rot.Rotator().RotateVector(Points[3]), Color, false, -1, 0, 2);
-	DrawDebugLine(GetWorld(), Loc + Rot.Rotator().RotateVector(Points[1]), Loc + Rot.Rotator().RotateVector(Points[3]), Color, false, -1, 0, 2);
-	FText EnumName;
-	UEnum::GetDisplayValueAsText(Connection.Direction, EnumName);
-	DrawDebugString(GetWorld(), Loc, EnumName.ToString());
+	FColor ModColor = (Connection.IsOpen ? Color : FColor::Red);
+	DrawDebugLine(GetWorld(), Loc + Rot.Rotator().RotateVector(Points[0]), Loc + Rot.Rotator().RotateVector(Points[1]), ModColor, false, -1, 0, 2);
+	DrawDebugLine(GetWorld(), Loc + Rot.Rotator().RotateVector(Points[2]), Loc + Rot.Rotator().RotateVector(Points[3]), ModColor, false, -1, 0, 2);
+	DrawDebugLine(GetWorld(), Loc + Rot.Rotator().RotateVector(Points[1]), Loc + Rot.Rotator().RotateVector(Points[3]), ModColor, false, -1, 0, 2);
+	//FText EnumName;
+	//UEnum::GetDisplayValueAsText(Connection.Direction, EnumName);
+	//DrawDebugString(GetWorld(), Loc, EnumName.ToString());
 	/*
 	TArray<FVector> Points;
 	FRotator DoorRotation = Door.Rotation;
@@ -498,28 +565,50 @@ void UMapTile::SetOriginalCoordinate(FVector Vector)
 	OriginalCoordinate = FVector2D(Vector.X, Vector.Y);
 }
 
-bool UMapTile::CleanConnections(ADevMapGenerator_v2* GeneratorRef)
+bool UMapTile::CleanConnections_Implementation(ADevMapGenerator_v2* GeneratorRef)
 {
 	int32 index = INDEX_NONE;
-	for (int i = Connect.Num() - 1; i >= 0; i--) {
+	int32 index2 = INDEX_NONE;
+	for (int32 i = 0; i < Connect.Num(); i++){//int i = Connect.Num() - 1; i >= 0; i--) {
 		index = GeneratorRef->GetTileAtLocation(GetRelativeLocation() + FTileCoordinate::GetDirectionAsVector(Connect[i].Direction, false));
-		if (index != INDEX_NONE) {
-			Connect[i].TileRef = GeneratorRef->Tiles[index];
+		//GEngine->AddOnScreenDebugMessage(-1,10,FColor::Cyan, FString::Printf(TEXT("[%i]IsValid: %s"), index, (GeneratorRef->Tiles.IsValidIndex(index) ? "true" : "false")));
+		if (GeneratorRef->Tiles.IsValidIndex(index)) {
+			index2 = GeneratorRef->Tiles[index]->FindConnection(FTileCoordinate::GetInverseDirection(Connect[i].Direction), this);
+			//GEngine->AddOnScreenDebugMessage(-1,10,FColor::White,FString::Printf(TEXT("[%i/%i].IsOpen: %i"), index, Connect.Num(), index2));
+			if (GeneratorRef->Tiles[index]->Connect.IsValidIndex(index2)) {
+				Connect[i].TileRef = GeneratorRef->Tiles[index];
+				GeneratorRef->Tiles[index]->Connect[index2].TileRef = this;
+				Connect[i].IsOpen = true;
+				GeneratorRef->Tiles[index]->Connect[index2].IsOpen = true;
+				//GEngine->AddOnScreenDebugMessage(-1,10,FColor::Red,"IsOpen");
+			}
+			else {
+				Connect[i].IsOpen = false;
+				HadConnectionRemoved = true;
+			}
 		}
 		else {
-			GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Cyan, "Removing connection!");
-			Connect.RemoveAt(i);
+			//GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Cyan, "Removing connection!");
+			//Connect.RemoveAt(i);
+			Connect[i].IsOpen = false;
 			HadConnectionRemoved = true;
 		}
 	}
 	index = INDEX_NONE;
 	for (int i = 0; i < Connect.Num(); i++) {
+		//if(!Connect[i].IsOpen) continue;
 		index = GeneratorRef->GetTileAtLocation(GetRelativeLocation() + FTileCoordinate::GetDirectionAsVector(Connect[i].Direction, false));
+		if (!GeneratorRef->Tiles.IsValidIndex(index)) continue;
+		index2 = GeneratorRef->Tiles[index]->FindConnection(FTileCoordinate::GetInverseDirection(Connect[i].Direction), this);
+		if (!GeneratorRef->Tiles[index]->Connect.IsValidIndex(index2)) continue;
 		FVector Dir = GetRelativeLocation() + FTileCoordinate::GetDirectionAsVector(Connect[i].Direction, false);
 
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("Adding... Equal? %s"), (this == GeneratorRef->Tiles[index] ? TEXT("True") : TEXT("false"))));
-		if(index == INDEX_NONE) continue;
-		GeneratorRef->Tiles[index]->AddConnection(FTileCoordinate::GetInverseDirection(Connect[i].Direction), this, Connect[i].ConnectionType, true);
+		//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("Adding... Equal? %s"), (this == GeneratorRef->Tiles[index] ? TEXT("True") : TEXT("false"))));
+		//GeneratorRef->Tiles[index]->AddConnection(FTileCoordinate::GetInverseDirection(Connect[i].Direction), this, Connect[i].ConnectionType, true);
+		//GeneratorRef->Tiles[index]->AddConnection(Connect[i].Direction, GeneratorRef->Tiles[index], Connect[i].ConnectionType, true);
+
+		Connect[i].IsOpen = true;
+		GeneratorRef->Tiles[index]->Connect[index2].IsOpen = true;
 	}
 	index = INDEX_NONE;
 	TArray<EGridDirection> NeighborTiles;
@@ -529,7 +618,7 @@ bool UMapTile::CleanConnections(ADevMapGenerator_v2* GeneratorRef)
 	NeighborTiles.Add(EGridDirection::W);
 	for (EGridDirection Dir : NeighborTiles) {
 		index = GeneratorRef->GetTileAtLocation(Location + FTileCoordinate::GetDirectionAsVector(Dir, false));
-		if (index != INDEX_NONE) {
+		if (GeneratorRef->Tiles.IsValidIndex(index)) {
 			Neighbors.Add(FConnection(Dir, GeneratorRef->Tiles[index], EConnectionType::INVALID));
 		}
 	}
@@ -543,7 +632,7 @@ bool UMapTile::AddConnection(EGridDirection Direction, UMapTile* TileRef, EConne
 	int32 index = FindConnection(Direction);
 	if (index != INDEX_NONE) {
 		if (!OverwriteExistingConnection) {
-			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("No Overwrite Allowed")));
+			//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("No Overwrite Allowed")));
 			return false;
 		}
 		if (Connect[index].TileRef == TileRef) {
@@ -570,7 +659,7 @@ bool UMapTile::AddConnectionInternal(EGridDirection Direction, UMapTile* TileRef
 		if (!OverwriteExistingConnection) return false;
 	}
 	if (index == INDEX_NONE) {
-		index = Connect.Add(FConnection(Direction, TileRef, ConnectionType));
+		index = Connect.Add(FConnection(Direction, nullptr, ConnectionType));
 	}
 	return true;
 }
@@ -596,7 +685,7 @@ void UMapTile::UpdateConnection(EGridDirection Direction, UMapTile* TileRef, ECo
 	// If neither parameter is valid, do nothing
 	if (!IsValid(TileRef) && Direction == EGridDirection::NONE) return;
 	
-	GEngine->AddOnScreenDebugMessage(-1,5,FColor::Red,"Updated...");
+	//GEngine->AddOnScreenDebugMessage(-1,5,FColor::Red,"Updated...");
 
 	if (IsValid(TileRef)) {
 		AddConnectionInternal(Direction, TileRef, ConnectionType, true);
@@ -609,22 +698,20 @@ void UMapTile::UpdateConnection(EGridDirection Direction, UMapTile* TileRef, ECo
 int32 UMapTile::FindConnection(EGridDirection Direction, UMapTile* TileRef) const
 {
 	int32 index = INDEX_NONE;
-	if (!IsValid(TileRef)) {
-		index = INDEX_NONE;
+	//if (IsValid(TileRef)) {
 		for (int32 i = 0; i < Connect.Num(); i++) {
-			if (Connect[i].Direction == Direction) {
-				index = i;
-				break;
-			}
+			if (Connect[i].Direction != Direction) continue;
+			return i;
+			//break;
 		}
-	}
-	else {
-		for (int32 i = 0; i < Connect.Num(); i++) {
-			if (Connect[i].TileRef == TileRef) {
-				index = i;
-				break;
-			}
-		}
-	}
+	//}
+	//else {
+	//	for (int32 i = 0; i < Connect.Num(); i++) {
+	//		if (Connect[i].TileRef == TileRef) {
+	//			index = i;
+	//			break;
+	//		}
+	//	}
+	//}
 	return index;
 }
