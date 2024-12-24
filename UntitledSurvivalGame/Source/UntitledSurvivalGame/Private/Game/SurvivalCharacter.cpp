@@ -36,7 +36,9 @@ ASurvivalCharacter::ASurvivalCharacter()
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 
-	VaultDuration = 0.5f;
+	VaultDuration = 0.2f;
+
+	ViewTargetBlendSpeed = 0.25f;
 
 	QueryParams.AddIgnoredActor(this);
 }
@@ -98,6 +100,13 @@ void ASurvivalCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASurvivalCharacter::Look);
+
+		// Interacting
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ASurvivalCharacter::StartInteraction);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this, &ASurvivalCharacter::StopInteraction);
+
+		//Exit
+		EnhancedInputComponent->BindAction(ExitAction, ETriggerEvent::Triggered, this, &ASurvivalCharacter::ExitConstrainedView);
 	}
 	else
 	{
@@ -123,6 +132,7 @@ void ASurvivalCharacter::Move(const FInputActionValue& Value)
 
 void ASurvivalCharacter::Look(const FInputActionValue& Value)
 {
+	if(IsViewConstrained) return;
 	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
@@ -153,6 +163,13 @@ void ASurvivalCharacter::GetCameraLocationAndRotation_Implementation(FVector& Lo
 {
 	Location = GetCameraComponent()->GetComponentLocation();
 	Rotation = GetCameraComponent()->GetComponentRotation();
+}
+
+void ASurvivalCharacter::ExitConstrainedView_Implementation()
+{
+	if(!IsViewConstrained) return;
+	//OverrideCameraView(nullptr, false, false);
+	IInteractionInterface::Execute_CancelInteraction(InteractionTarget, CurrentInteractionInfo);
 }
 
 void ASurvivalCharacter::Jump()
@@ -259,8 +276,11 @@ void ASurvivalCharacter::StartInteraction_Implementation()
 	CurrentInteractionInfo.HitComponent = LastCameraTraceResult.GetComponent();
 	if (!IInteractionInterface::Execute_CanInteract(LastCameraTraceResult.GetActor(), Info)) { LastCameraTraceResult.bBlockingHit = false; return; }
 	InteractionDistance = (FVector::Dist(GetCameraComponent()->GetComponentLocation(), LastCameraTraceResult.ImpactPoint)) + MaxInteractionOffset;
-	IInteractionInterface::Execute_BeginInteraction(LastCameraTraceResult.GetActor(), Info);
+	InteractionTarget = LastCameraTraceResult.GetActor();
+	IInteractionInterface::Execute_BeginInteraction(InteractionTarget, Info);
 	GetWorldTimerManager().SetTimer(InteractionCheckTimerHandle, this, &ASurvivalCharacter::CheckInteractionBreak, 0.1f, true);
+	//CurrentInteractionInfo.ControllerRef = Info.ControllerRef;
+	//CurrentInteractionInfo.PawnRef		 = Info.PawnRef;
 }
 
 void ASurvivalCharacter::OnStartInteractionWithoutInterface_Implementation(AActor* WithActor)
@@ -269,14 +289,14 @@ void ASurvivalCharacter::OnStartInteractionWithoutInterface_Implementation(AActo
 
 void ASurvivalCharacter::StopInteraction_Implementation()
 {
-	if (LastCameraTraceResult.bBlockingHit) {
-		IInteractionInterface* Interface = Cast<IInteractionInterface>(LastCameraTraceResult.GetActor());
-		if (UKismetSystemLibrary::DoesImplementInterface(LastCameraTraceResult.GetActor(), UInteractionInterface::StaticClass())) {
-			IInteractionInterface::Execute_EndInteraction(LastCameraTraceResult.GetActor(), CurrentInteractionInfo);
+	if (IsValid(InteractionTarget)) {
+		IInteractionInterface* Interface = Cast<IInteractionInterface>(InteractionTarget);
+		if (UKismetSystemLibrary::DoesImplementInterface(InteractionTarget, UInteractionInterface::StaticClass())) {
+			IInteractionInterface::Execute_EndInteraction(InteractionTarget, CurrentInteractionInfo);
 			GetWorldTimerManager().ClearTimer(InteractionCheckTimerHandle);
 		}
 		else {
-			OnStopInteractionWithoutInterface(LastCameraTraceResult.GetActor());
+			OnStopInteractionWithoutInterface(InteractionTarget);
 		}
 	}
 }
@@ -288,8 +308,8 @@ void ASurvivalCharacter::OnStopInteractionWithoutInterface_Implementation(AActor
 void ASurvivalCharacter::CheckInteractionBreak_Implementation()
 {
 	if (FVector::Dist(GetCameraComponent()->GetComponentLocation(), LastCameraTraceResult.ImpactPoint) > InteractionDistance) {
-		if (UKismetSystemLibrary::DoesImplementInterface(LastCameraTraceResult.GetActor(), UInteractionInterface::StaticClass())) {
-			IInteractionInterface::Execute_CancelInteraction(LastCameraTraceResult.GetActor(), CurrentInteractionInfo);
+		if (UKismetSystemLibrary::DoesImplementInterface(InteractionTarget, UInteractionInterface::StaticClass())) {
+			IInteractionInterface::Execute_CancelInteraction(InteractionTarget, CurrentInteractionInfo);
 			LastCameraTraceResult.bBlockingHit = false;
 			GetWorldTimerManager().ClearTimer(InteractionCheckTimerHandle);
 		}
@@ -299,13 +319,38 @@ void ASurvivalCharacter::CheckInteractionBreak_Implementation()
 bool ASurvivalCharacter::UpdateCameraTrace(float MaxDistance)
 {
 	FVector CameraLocation	= GetCameraComponent()->GetComponentLocation();
-	GetWorld()->LineTraceSingleByChannel(LastCameraTraceResult, CameraLocation, CameraLocation + (GetCameraComponent()->GetForwardVector() * MaxDistance), ECollisionChannel::ECC_Camera, QueryParams);
+	if (IsViewConstrained) {
+		APlayerController* PC = GetController<APlayerController>();
+		PC->GetHitResultUnderCursor(ECollisionChannel::ECC_Camera, true, LastCameraTraceResult);
+	} else {
+		GetWorld()->LineTraceSingleByChannel(LastCameraTraceResult, CameraLocation, CameraLocation + (GetCameraComponent()->GetForwardVector() * MaxDistance), ECollisionChannel::ECC_Camera, QueryParams);
+	}
 	//UKismetSystemLibrary::LineTraceSingle(GetWorld(), CameraLocation, CameraLocation + (GetCameraComponent()->GetForwardVector() * MaxDistance), ETraceTypeQuery::TraceTypeQuery2, false, {}, EDrawDebugTrace::None, LastCameraTraceResult, true, FLinearColor::Red, FLinearColor::Green, 2.f);
 	return LastCameraTraceResult.bBlockingHit;
 }
 
+void ASurvivalCharacter::OverrideCameraView(AActor* TargetView, bool ShowMouse, bool DisableMovement)
+{
+	APlayerController* PC = GetController<APlayerController>();
+	if (!IsValid(PC)) return;
+	if (IsValid(TargetView)) {
+		PC->SetViewTargetWithBlend(TargetView, ViewTargetBlendSpeed, EViewTargetBlendFunction::VTBlend_EaseOut, 2);
+		IsViewConstrained = true;
+		PC->SetShowMouseCursor(ShowMouse);
+		PC->SetIgnoreMoveInput(DisableMovement);
+		//if (ShowMouse) PC->SetInputMode(FInputModeUIOnly());
+	} else {
+		PC->SetViewTargetWithBlend(this, ViewTargetBlendSpeed, EViewTargetBlendFunction::VTBlend_EaseIn, 2);
+		PC->SetShowMouseCursor(false);
+		PC->SetIgnoreMoveInput(false);
+		PC->SetInputMode(FInputModeGameOnly());
+		//FirstPersonCameraComponent->SetActive(true);
+		IsViewConstrained = false;
+	}
+}
+
 USceneComponent* ASurvivalCharacter::GetCameraComponent_Implementation() const
 {
-	return GetRootComponent();
+	return FirstPersonCameraComponent;
 }
 

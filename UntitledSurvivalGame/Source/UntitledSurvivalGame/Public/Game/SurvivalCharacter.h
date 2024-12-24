@@ -38,6 +38,14 @@ class UNTITLEDSURVIVALGAME_API ASurvivalCharacter : public ACharacter
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveAction;
+	
+	/** Interact Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* InteractAction;
+
+	/** Exit Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ExitAction;
 
 	UPROPERTY()
 	FTimerHandle VaultTimerHandle;
@@ -83,6 +91,9 @@ class UNTITLEDSURVIVALGAME_API ASurvivalCharacter : public ACharacter
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	FHitResult LastCameraTraceResult;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+	AActor* InteractionTarget;
+
 	UPROPERTY()
 	FVector InteractionLocation;
 
@@ -91,6 +102,12 @@ class UNTITLEDSURVIVALGAME_API ASurvivalCharacter : public ACharacter
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	float MaxInteractionOffset;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+	bool IsViewConstrained;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	float ViewTargetBlendSpeed;
 
 public:
 	// Sets default values for this character's properties
@@ -109,6 +126,10 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void ExitConstrainedView();
+	virtual void ExitConstrainedView_Implementation();
 
 	virtual void Jump() override;
 
@@ -170,6 +191,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void GetCameraLocationAndRotation(FVector& Location, FRotator& Rotation);
 	virtual void GetCameraLocationAndRotation_Implementation(FVector& Location, FRotator& Rotation);
+
+	UFUNCTION(BlueprintCallable)
+	void OverrideCameraView(AActor* TargetView, bool ShowMouse = true, bool DisableMovement = true);
 
 public:
 	/** Returns Mesh1P subobject **/
