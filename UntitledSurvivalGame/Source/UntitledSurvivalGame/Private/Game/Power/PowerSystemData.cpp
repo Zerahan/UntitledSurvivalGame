@@ -37,14 +37,13 @@ void UPowerSystemData::Recalculate_Implementation()
 			// Only add if below zero.
 			CurrentConsumed += FMath::Min(0, IPowerSystemInterface::Execute_GetPower(Ref));
 		}
-		if (TotalGeneratedPower + TotalConsumedPower + CurrentConsumed >= 0) {
+		APowerNetworkNode* Node = Cast<APowerNetworkNode>(CurrentNode);
+		if (TotalGeneratedPower > 0 && TotalGeneratedPower + TotalConsumedPower + CurrentConsumed >= 0) {
 			TotalConsumedPower += CurrentConsumed;
+			if (IsValid(Node)) Node->UpdateHasPower(true);
 		} else {
 			// If adding the new consumed power would overwhelm the generators, shut off the node.
-			APowerNetworkNode* Node = Cast<APowerNetworkNode>(CurrentNode);
-			if (IsValid(Node)) {
-				Node->SetIsSwitchOn(false);
-			}
+			if (IsValid(Node)) Node->UpdateHasPower(false);
 		}
 	}
 	OnPowerStateUpdatedDispatcher.Broadcast();

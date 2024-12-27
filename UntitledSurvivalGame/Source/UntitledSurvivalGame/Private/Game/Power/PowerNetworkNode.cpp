@@ -76,6 +76,12 @@ bool APowerNetworkNode::GetIsSwitchOn() const
 	return IsSwitchOn;
 }
 
+void APowerNetworkNode::UpdateHasPower_Implementation(bool State)
+{
+	//SetIsSwitchOn(State);
+	if(State == false) SetIsSwitchOn(false);
+}
+
 void APowerNetworkNode::SetIsSwitchOn_Implementation(bool State)
 {
 	if(IsSwitchOn == State) return;

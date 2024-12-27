@@ -17,13 +17,13 @@ class UNTITLEDSURVIVALGAME_API APowerNetworkNode : public AActor, public IIntera
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadWrite, EditInstanceOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	bool IsSwitchOn;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	bool IsReceivingPower;
 
-	UPROPERTY(BlueprintReadWrite, EditInstanceOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	AActor* PowerProviderRef;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
@@ -59,6 +59,14 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	bool GetIsSwitchOn() const;
+
+	//UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	//bool GetCanChangeSwitch() const;
+	//virtual bool GetCanChangeSwitch_Implementation() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void UpdateHasPower(bool State);
+	virtual void UpdateHasPower_Implementation(bool State);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void SetIsSwitchOn(bool State);
