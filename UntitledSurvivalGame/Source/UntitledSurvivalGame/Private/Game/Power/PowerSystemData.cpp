@@ -23,7 +23,7 @@ void UPowerSystemData::Recalculate_Implementation()
 		if (!IPowerSystemInterface::Execute_GetIsProvidingPower(Ref)) continue;
 		TotalGeneratedPower += IPowerSystemInterface::Execute_GetPower(Ref);
 	}
-
+	
 	// Propagate downstream. Compare against the total generated. If greater, shut off the node.
 	// There is definitely a more efficient way to do this, but I just need to get it working and move on.
 	TotalConsumedPower = 0;
@@ -43,7 +43,7 @@ void UPowerSystemData::Recalculate_Implementation()
 			if (IsValid(Node)) Node->UpdateHasPower(true);
 		} else {
 			// If adding the new consumed power would overwhelm the generators, shut off the node.
-			if (IsValid(Node)) Node->UpdateHasPower(false);
+			if (IsValid(Node)) Node->ForceSwitchOff(false);
 		}
 	}
 	OnPowerStateUpdatedDispatcher.Broadcast();

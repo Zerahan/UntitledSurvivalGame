@@ -82,6 +82,11 @@ void APowerNetworkNode::UpdateHasPower_Implementation(bool State)
 	if(State == false) SetIsSwitchOn(false);
 }
 
+void APowerNetworkNode::ForceSwitchOff_Implementation(const int32 ID)
+{
+	UpdateHasPower(false);
+}
+
 void APowerNetworkNode::SetIsSwitchOn_Implementation(bool State)
 {
 	if(IsSwitchOn == State) return;

@@ -69,6 +69,10 @@ public:
 	virtual void UpdateHasPower_Implementation(bool State);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void ForceSwitchOff(const int32 ID);
+	virtual void ForceSwitchOff_Implementation(const int32 ID);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void SetIsSwitchOn(bool State);
 	virtual void SetIsSwitchOn_Implementation(bool State);
 
