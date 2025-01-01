@@ -2,8 +2,10 @@
 
 
 #include "Game/Power/PowerSystemData.h"
+
 #include "Game/Power/PowerNetworkNode.h"
 #include "Interfaces/PowerSystemInterface.h"
+#include "Game/SaveGame_SurvivalGame.h"
 /*
 * Requirements:
 *	If a node is switched on and the power draw is too high, it switches itself off.
@@ -183,6 +185,14 @@ TArray<AActor*> UPowerSystemData::GetDownstreamOf(AActor* ActorRef) const
 	int32 Index = ControlNodes.Find(Cast<APowerNetworkNode>(ActorRef));
 	if(Index == INDEX_NONE) return TArray<AActor*>();
 	return ControlNodes_Downstream[Index].DownstreamActors;
+}
+
+void UPowerSystemData::OnFinishedLoad()
+{
+	Recalculate();
+	if(!ControlNodes_SortedIndexes.IsValidIndex(0)) return;
+	if (!ControlNodes.IsValidIndex(ControlNodes_SortedIndexes[0])) return;
+	UpdateAllDownstreamNodesOf(ControlNodes[ControlNodes_SortedIndexes[0]]);
 }
 
 void UPowerSystemData::SortControlNodes()

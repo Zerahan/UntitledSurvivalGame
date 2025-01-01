@@ -96,6 +96,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	TArray<AActor*> GetDownstreamOf(AActor* ActorRef) const;
 
+	UFUNCTION(BlueprintCallable)
+	void OnFinishedLoad();
+
 	UFUNCTION()
 	void SortControlNodes();
 

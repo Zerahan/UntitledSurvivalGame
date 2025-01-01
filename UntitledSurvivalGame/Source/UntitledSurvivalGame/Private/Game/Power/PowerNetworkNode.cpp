@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Game/Power/PowerNetworkNode.h"
+
 #include "Game/Power/PowerSystemData.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -24,6 +25,11 @@ void APowerNetworkNode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void APowerNetworkNode::OnLoadedFromSave_Implementation()
+{
+	UpdateGraphics();
 }
 
 void APowerNetworkNode::SetLinkedPowerSystem_Implementation(UPowerSystemData* System)

@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include "Inventory/SpawnedItem_Generic.h"
 #include "Inventory/ItemData.h"
 #include "Inventory/ItemAsset_Generic.h"
-#include "Inventory/SpawnedItem_Generic.h"
 #include "Inventory/InventoryComponent.h"
 #include "Components/StaticMeshComponent.h"
 

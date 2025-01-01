@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Interfaces/InteractionInterface.h"
 #include "Interfaces/PowerSystemInterface.h"
+#include "Interfaces/SaveSystemInterface.h"
 #include "PowerNetworkNode.generated.h"
 
 class UPowerSystemData;
@@ -13,11 +14,11 @@ class UPowerSystemData;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPowerStateUpdated);
 
 UCLASS(Blueprintable)
-class UNTITLEDSURVIVALGAME_API APowerNetworkNode : public AActor, public IInteractionInterface, public IPowerSystemInterface
+class UNTITLEDSURVIVALGAME_API APowerNetworkNode : public AActor, public IInteractionInterface, public IPowerSystemInterface, public ISaveSystemInterface
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, meta = (AllowPrivateAccess = "true"))
 	bool IsSwitchOn;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
@@ -40,6 +41,8 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void OnLoadedFromSave_Implementation();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void SetLinkedPowerSystem(UPowerSystemData* System);
