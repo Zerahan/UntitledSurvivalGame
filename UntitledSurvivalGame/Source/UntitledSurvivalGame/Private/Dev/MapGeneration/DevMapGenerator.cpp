@@ -20,7 +20,8 @@ ADevMapGenerator::ADevMapGenerator()
 	
 	CollisionTester = CreateDefaultSubobject<UBoxComponent>(TEXT("OverlapTester"));
 	if (CollisionTester) {
-		CollisionTester->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
+		CollisionTester->SetupAttachment(RootComponent);
+		//CollisionTester->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
 		CollisionTester->SetBoxExtent(FVector(199, 199, 149));
 		CollisionTester->SetRelativeLocation(FVector(0, 0, -1000));
 	}
