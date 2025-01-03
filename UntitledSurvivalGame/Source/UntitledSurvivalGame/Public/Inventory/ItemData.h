@@ -18,7 +18,7 @@ class UNTITLEDSURVIVALGAME_API UItemData : public UObject
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame)
 	TSubclassOf<UItemAsset_Generic> ClassRef;
 	
 public:

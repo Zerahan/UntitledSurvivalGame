@@ -9,6 +9,7 @@
 #include "Game/SaveGame_SurvivalGame.h"
 #include "Game/Power/PowerNetworkNode.h"
 #include "Game/Power/PowerSystemData.h"
+#include "Runtime/Core/Public/Misc/NetworkVersion.h"
 
 void USurvivalSaveGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -95,6 +96,12 @@ bool USurvivalSaveGameSubsystem::LoadGameFromID(int32 SlotID)
 	SaveGameData = CastChecked<USaveGame_SurvivalGame>(UGameplayStatics::LoadGameFromSlot(GetFormatedSaveSlot(SlotID), 0));
 	if(!IsValid(SaveGameData)) return false;
 	
+	FGuid NewVersionID;
+	FNetworkVersion::GetNetworkProtocolVersion(NewVersionID);
+	if (SaveGameData->GetSaveGameVersion() != NewVersionID) {
+		UE_LOG(LogTemp, Warning, TEXT("%s: Version number missmatch for %s! %s vs current %s"), *GetClass()->GetFName().ToString(), *GetFormatedSaveSlot(SlotID), *SaveGameData->GetSaveGameVersion().ToString(), *NewVersionID.ToString());
+	}
+
 	SaveSlotID = SlotID;
 
 	SaveGameData->OnFinishedLoading.AddDynamic(this, &USurvivalSaveGameSubsystem::OnFinishedLoading);
@@ -106,7 +113,6 @@ bool USurvivalSaveGameSubsystem::LoadGameFromID(int32 SlotID)
 		Player->SetShowMouseCursor(false);
 	}
 
-	
 	//UGameplayStatics::OpenLevel(GetWorld(), FName("Map_Transition"), true);
 	UGameplayStatics::OpenLevel(GetWorld(), SaveGameData->GetLevelName(), true, FString("Game=SurvivalGM_Base_BP"));
 	UGameplayStatics::LoadStreamLevel(GetWorld(), SaveGameData->GetLevelName(), true, true, FLatentActionInfo(0, 123456, TEXT("OnLevelLoaded"), this));

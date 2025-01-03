@@ -20,7 +20,7 @@ class UNTITLEDSURVIVALGAME_API UInventoryData : public UObject
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, SaveGame, meta = (AllowPrivateAccess = "true"))
 	int32 InventorySize;
 	
 	UPROPERTY()
@@ -38,7 +38,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetDataName(FString NewName);
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame)
 	TArray<UItemData*> Slots;
 
 public:

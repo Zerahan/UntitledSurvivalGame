@@ -7,10 +7,12 @@
 #include "Kismet/GameplayStatics.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 #include "Interfaces/SaveSystemInterface.h"
+#include "Runtime/Core/Public/Misc/NetworkVersion.h"
 
 USaveGame_SurvivalGame::USaveGame_SurvivalGame()
 {
-	LevelName = FName("devTest");
+	LevelName = FName("MapHangar");
+	FNetworkVersion::GetNetworkProtocolVersion(VersionGuid);
 }
 
 FName USaveGame_SurvivalGame::GetLevelName() const
@@ -160,4 +162,9 @@ bool USaveGame_SurvivalGame::ReadSaveGameFromSlot_Implementation(const FString& 
 int32 USaveGame_SurvivalGame::GetCount() const
 {
 	return SavedActorData.Num();
+}
+
+const FGuid USaveGame_SurvivalGame::GetSaveGameVersion() const
+{
+	return VersionGuid;
 }

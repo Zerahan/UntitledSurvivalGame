@@ -27,7 +27,7 @@ class UNTITLEDSURVIVALGAME_API UInventoryComponent : public UActorComponent
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	UMenu_Inventory_Widget* InventoryWidget;
 
-	UPROPERTY()
+	UPROPERTY(SaveGame)
 	TArray<UInventoryData*> InventoryDataList;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = "true"))

@@ -19,7 +19,7 @@ public:
 		: Amount(0)
 	{};
 	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame)
 	int32 Amount;
 
 	virtual int32 GetAmount_Implementation() const override;

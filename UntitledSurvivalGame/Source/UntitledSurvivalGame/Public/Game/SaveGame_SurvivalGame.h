@@ -32,6 +32,9 @@ class UNTITLEDSURVIVALGAME_API USaveGame_SurvivalGame : public USaveGame
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	FString FullSlotName;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+	FGuid VersionGuid;
+
 	UPROPERTY()
 	TMap<FName, FGenericActorSaveData> SavedActorData;
 
@@ -63,6 +66,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	int32 GetCount() const;
+
+	UFUNCTION(BlueprintCallable)
+	const FGuid GetSaveGameVersion() const;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnFinishedLoading OnFinishedLoading;
